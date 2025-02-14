@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 const server = http.createServer(app); // ربط السيرفر بـ Express
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173", // استبدلها برابط الفرونت
+        origin: process.env.FRONT_LINK, // استبدلها برابط الفرونت
         methods: ["GET", "POST", "DELETE", "PUT"],
         credentials: true
     },
@@ -23,7 +23,7 @@ const io = new Server(server, {
 });
 
 app.use(cors({
-    origin: "http://localhost:5173", // نفس الدومين
+    origin: process.env.FRONT_LINK, // نفس الدومين
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true
 }));
