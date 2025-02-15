@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
 // جلب جميع الأحداث
 router.get("/", async (req, res) => {
     try {
-        const events = await Event.find();
+        const events = await EventModel.find();
         res.json(events);
     } catch (error) {
         res.status(500).json({ message: error.message });
