@@ -6,7 +6,8 @@ import clientRoutes from './src/routes/clientRoutes.js'
 import authRoutes from './src/routes/auth.js'
 import usersRoutes from './src/routes/usersRoutes.js'
 import notificationRoutes from './src/routes/notificationRouts.js'
-import eventRoutes from './src/routes/eventRoutes.js'
+import eventsRoutes from './src/routes/eventRoutes.js'
+
 import http from 'http'; // لإنشاء سيرفر HTTP
 import { Server } from 'socket.io' // Socket.IO
 
@@ -28,6 +29,8 @@ app.use(cors({
     credentials: true
 }));
 
+
+
 // ربط المهام بـ Socket.IO
 app.use((req, res, next) => {
     req.io = io; // تمرير io إلى كل الطلبات
@@ -47,7 +50,8 @@ app.use('/api/notifications', notificationRoutes);
 // app.use('/api/sales', saleRoutes);
 // app.use('/api/tasks', taskRoutes);
 app.use('/api/clients', clientRoutes);
-app.use('/api/events', eventRoutes);
+app.use('/api/events', eventsRoutes);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 

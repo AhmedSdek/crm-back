@@ -3,8 +3,6 @@ import { EventModel } from '../models/Event.js';
 import nodemailer from "nodemailer";
 import cron from 'node-cron'
 const router = express.Router();
-
-
 // إضافة حدث جديد
 router.post("/", async (req, res) => {
     try {
@@ -21,6 +19,21 @@ router.get("/", async (req, res) => {
     try {
         const events = await EventModel.find();
         res.json(events);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+// حذف حدث حسب الـ ID
+router.delete("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedEvent = await EventModel.findByIdAndDelete(id);
+
+        if (!deletedEvent) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+
+        res.status(200).json({ message: "Event deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
