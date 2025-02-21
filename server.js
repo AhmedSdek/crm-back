@@ -5,6 +5,8 @@ import 'dotenv/config';
 import clientRoutes from './src/routes/clientRoutes.js'
 import authRoutes from './src/routes/auth.js'
 import usersRoutes from './src/routes/usersRoutes.js'
+import saleRoutes from './src/routes/saleRoutes.js'
+
 import notificationRoutes from './src/routes/notificationRouts.js'
 import eventsRoutes from './src/routes/eventRoutes.js'
 
@@ -47,7 +49,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 app.use('/api/notifications', notificationRoutes);
 // app.use('/api/properties', propertyRoutes);
-// app.use('/api/sales', saleRoutes);
+app.use('/api/sales', saleRoutes);
 // app.use('/api/tasks', taskRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/events', eventsRoutes);
