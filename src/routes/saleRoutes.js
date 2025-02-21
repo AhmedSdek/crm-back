@@ -88,7 +88,7 @@ router.post('/create-sales', async (req, res) => {
         let emailExists = await UserModel.findOne({ email: generatemail });
 
         if (emailExists) {
-            const randomNumber = Math.floor(1000 + Math.random() * 9000); // رقم عشوائي 4 أرقام
+            const randomNumber = Math.floor(1000 + Math.random() * 900000); // رقم عشوائي 4 أرقام
             generatemail = `${name.replace(/\s+/g, '.').toLowerCase()}${randomNumber}@maverick.com`;
         }
 
