@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport({
 
 // Route لإنشاء حساب سيلز
 router.post('/create-sales', async (req, res) => {
-    const { name, email } = req.body;
+    const { name, email, phone } = req.body;
     try {
         // إنشاء الإيميل تلقائيًا
         const generatemail = `${name.replace(/\s+/g, '.').toLowerCase()}@maverick.com`;
@@ -44,6 +44,7 @@ router.post('/create-sales', async (req, res) => {
         const newUser = new UserModel({
             name,
             email: generatemail,
+            phone: phone,
             password: hashedPassword,
             realemail: email,
             role: 'sales', // تحديد الدور كـ سيلز
