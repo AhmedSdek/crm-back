@@ -164,8 +164,8 @@ const scheduleEmail = (realemail, client, date, subject) => {
 
 const scheduleInactivityEmail = async (email, client, transferTime, io) => {
     const warningTime = new Date();
-    // warningTime.setHours(warningTime.getHours() + 24); // إرسال الإيميل بعد 24 ساعة
-    warningTime.setMinutes(warningTime.getMinutes() + 1); // بعد دقيقة واحدة
+    warningTime.setHours(warningTime.getHours() + 24); // إرسال الإيميل بعد 24 ساعة
+    // warningTime.setMinutes(warningTime.getMinutes() + 1); // بعد دقيقة واحدة
     const cronWarningTime = `${warningTime.getMinutes()} ${warningTime.getHours()} ${warningTime.getDate()} ${warningTime.getMonth() + 1} *`;
 
     console.log(`⏳ تم جدولة تحذير للبائع (${email}) بخصوص العميل (${client._id}) في ${warningTime}`);
@@ -186,8 +186,8 @@ const scheduleInactivityEmail = async (email, client, transferTime, io) => {
 
     // ✅ **جدولة النقل بعد 48 ساعة**
     const transferTimeLimit = new Date(transferTime);
-    // transferTimeLimit.setHours(transferTimeLimit.getHours() + 48); // نقل العميل بعد 48 ساعة
-    transferTimeLimit.setMinutes(transferTimeLimit.getMinutes() + 2); // بعد دقيقة واحدة
+    transferTimeLimit.setHours(transferTimeLimit.getHours() + 48); // نقل العميل بعد 48 ساعة
+    // transferTimeLimit.setMinutes(transferTimeLimit.getMinutes() + 2); // بعد دقيقة واحدة
 
     const cronTransferTime = `${transferTimeLimit.getMinutes()} ${transferTimeLimit.getHours()} ${transferTimeLimit.getDate()} ${transferTimeLimit.getMonth() + 1} *`;
 
