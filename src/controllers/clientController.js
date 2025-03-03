@@ -88,6 +88,7 @@ export const updateClient = async (req, res) => {
                 clientId: updatedClient._id
             });
             await notification.save();
+
             req.io.to(assignedTo._id).emit('newClientNotification', notification);
         }
 
@@ -233,6 +234,7 @@ const transferClientToNextSeller = async (client, io) => {
         await nextSeller.save();
 
         latestClient.assignedTo = nextSeller._id.toString();
+        latestClient.modifiedTime = new Date(); // تحديث وقت آخر تعديل
         await latestClient.save();
 
         console.log(`✅ تم نقل العميل (${latestClient._id}) إلى البائع الجديد (${nextSeller.realemail})`);

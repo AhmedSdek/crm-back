@@ -15,6 +15,7 @@ const ClientSchema = new mongoose.Schema({
     meetingDate: { type: Date },
     isBuyer: { type: Boolean, required: true },
     createdAt: { type: Date, default: Date.now },
+    modifiedTime: { type: Date, default: Date.now },
     lastUpdated: { type: Date, default: Date.now }, // ✅ وقت آخر تعديل
     status: { type: String, default: 'New Lead' }, // مهتم أو غير مهتم
     salesId: { type: mongoose.Schema.Types.ObjectId, ref: 'Sales' }, // لربط العميل بـ Sales
