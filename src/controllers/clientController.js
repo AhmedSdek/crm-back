@@ -97,14 +97,98 @@ export const createClient = async (req, res, next) => {
 //         res.status(500).json({ message: error.message });
 //     }
 // };
+// export const updateClient = async (req, res) => {
+//     try {
+//         const { status, callBackDate, assignedTo, meetingDate } = req.body;
+//         const currentUser = req.user;
+
+//         const updatedClient = await ClientModel.findByIdAndUpdate(
+//             req.params.id,
+//             { ...req.body, lastUpdated: Date.now() },
+//             { new: true }
+//         );
+
+//         if (!updatedClient) return res.status(404).json({ message: 'Client not found' });
+
+//         // 🔹 جلب ID الأدمن من قاعدة البيانات
+//         const admin = await UserModel.findOne({ role: "admin" });
+
+//         // 🟢 إذا كان البائع هو من قام بالتعديل، يتم إرسال إشعار إلى الأدمن فقط
+//         if (currentUser.role === 'sales') {
+//             const adminNotification = new NotificationModel({
+//                 userId: admin._id,
+//                 message: `Client ${updatedClient.firstName} ${updatedClient.lastName} has been updated by ${currentUser.name}.`,
+//                 clientId: updatedClient._id
+//             });
+//             await adminNotification.save();
+//             req.io.to(admin._id.toString()).emit('newActionNotification', adminNotification);
+
+//             // ✅ إذا تم تحديد callBackDate، جدولة الإيميل للبائع
+//             if (status === "Follow Up" && callBackDate) {
+//                 const seller = await UserModel.findById(currentUser.id);
+//                 if (seller && seller.email) {
+//                     scheduleEmail(seller.realemail, updatedClient, callBackDate, "Client Follow-Up Reminder");
+//                 }
+//             }
+//             // ✅ إذا تم تحديد meetingDate، جدولة إيميل للبائع
+//             if (meetingDate) {
+//                 const seller = await UserModel.findById(currentUser.id);
+//                 if (seller && seller.email) {
+//                     scheduleEmail(seller.realemail, updatedClient, meetingDate, "Client Meeting Reminder");
+//                 }
+//             }
+//         }
+
+//         // 🟢 إذا كان الأدمن هو من قام بالتعديل، يتم تنفيذ شرط `if (assignedTo)`
+//         if (currentUser.role === 'admin' && assignedTo) {
+//             const newSeller = await UserModel.findById(assignedTo); // جلب بيانات البائع الجديد
+//             if (!newSeller) {
+//                 return res.status(404).json({ message: 'Sales user not found' });
+//             }
+
+//             // 🔹 إزالة العميل من قائمة `assignedClients` للبائع القديم
+//             const oldSeller = await UserModel.findOne({ assignedClients: updatedClient._id });
+//             if (oldSeller) {
+//                 oldSeller.assignedClients = oldSeller.assignedClients.filter(
+//                     (clientId) => clientId.toString() !== updatedClient._id.toString()
+//                 );
+//                 await oldSeller.save();
+//             }
+
+//             // 🔹 إضافة العميل إلى `assignedClients` للبائع الجديد
+//             newSeller.assignedClients.push(updatedClient._id);
+//             await newSeller.save();
+
+//             const notification = new NotificationModel({
+//                 userId: assignedTo,
+//                 message: `New client assigned by Admin: ${updatedClient._id}`,
+//                 clientId: updatedClient._id
+//             });
+//             await notification.save();
+
+//             req.io.to(assignedTo.toString()).emit('newClientNotification', notification);
+//         }
+
+//         res.status(200).json(updatedClient);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
 export const updateClient = async (req, res) => {
     try {
         const { status, callBackDate, assignedTo, meetingDate } = req.body;
         const currentUser = req.user;
 
+        let updateData = { ...req.body, lastUpdated: Date.now() }; // تحديث `lastUpdated` دائماً
+
+        // 🟢 إذا كان الأدمن هو من قام بتغيير البائع (`assignedTo`)، يتم تحديث `modifiedTime`
+        if (currentUser.role === 'admin' && assignedTo) {
+            updateData.modifiedTime = Date.now(); // تحديث `modifiedTime` عند تغيير البائع
+        }
+
         const updatedClient = await ClientModel.findByIdAndUpdate(
             req.params.id,
-            { ...req.body, lastUpdated: Date.now() },
+            updateData,
             { new: true }
         );
 
