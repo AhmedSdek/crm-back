@@ -24,6 +24,7 @@ const ClientSchema = new mongoose.Schema({
         feedbackDate: { type: Date, default: Date.now },
     },
     callBackDate: { type: Date },
+    warningEmailSent: { type: Boolean },
 });
 
 

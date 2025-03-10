@@ -12,7 +12,7 @@ import eventsRoutes from './src/routes/eventRoutes.js'
 
 import http from 'http'; // لإنشاء سيرفر HTTP
 import { Server } from 'socket.io' // Socket.IO
-
+import { scheduleInactivityCheck } from './src/controllers/clientController.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app); // ربط السيرفر بـ Express
@@ -58,7 +58,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 
 const users = {}; // تخزين معرف المستخدم مع socket.id
-
+// تشغيل الجدولة فور تشغيل السيرفر
+scheduleInactivityCheck(io);
 io.on('connection', (socket) => {
     // console.log('A user connected:', socket.id);
 
