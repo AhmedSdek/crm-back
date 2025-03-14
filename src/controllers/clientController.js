@@ -452,7 +452,7 @@ const scheduleEmail = (realemail, client, date, subject) => {
     console.log(`⏳ تم جدولة إيميل للبائع (${realemail}) في ${date} - الموضوع: ${subject}`);
 
     cron.schedule(cronTime, async () => {
-        const message = `Reminder: You have a scheduled event for client ${client.firstName} ${client.lastName}. Please check your CRM system.`;
+        const message = `Reminder: You have a scheduled event for client ${client.firstName} ${client.lastName} : ${date}. Please check your CRM system.`;
         await sendEmail(realemail, subject, message);
         console.log(`✅ تم إرسال الإيميل للبائع (${realemail}) بخصوص: ${subject}.`);
     });
