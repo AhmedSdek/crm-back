@@ -264,8 +264,9 @@ export const createClient = async (req, res, next) => {
 export const updateClient = async (req, res) => {
     try {
         const { status, callBackDate, assignedTo, meetingDate, attendDate } = req.body;
-        // console.log(req.body)
+        console.log(req.body)
         const currentUser = req.user;
+        console.log(currentUser)
 
         // 🟢 إعداد بيانات التحديث بناءً على دور المستخدم
         let updateData = { ...req.body };
@@ -303,23 +304,23 @@ export const updateClient = async (req, res) => {
             req.io.to(admin._id.toString()).emit('newActionNotification', adminNotification);
 
             // ✅ إذا تم تحديد callBackDate، جدولة الإيميل للبائع
-            if (status === "Follow Up" && callBackDate) {
+            if (callBackDate) {
                 const seller = await UserModel.findById(currentUser.id);
-                if (seller && seller.email) {
+                if (seller && seller.realemail) {
                     scheduleEmail(seller.realemail, updatedClient, callBackDate, "Client Follow-Up Reminder");
                 }
             }
             // ✅ إذا تم تحديد attendDate جدولة الإيميل للبائع
-            if (status === "Attend Visit" && attendDate) {
+            if (attendDate) {
                 const seller = await UserModel.findById(currentUser.id);
-                if (seller && seller.email) {
+                if (seller && seller.realemail) {
                     scheduleEmail(seller.realemail, updatedClient, attendDate, "Client Attend Visit Reminder");
                 }
             }
             // ✅ إذا تم تحديد meetingDate، جدولة إيميل للبائع
             if (meetingDate) {
                 const seller = await UserModel.findById(currentUser.id);
-                if (seller && seller.email) {
+                if (seller && seller.realemail) {
                     scheduleEmail(seller.realemail, updatedClient, meetingDate, "Client Meeting Reminder");
                 }
             }
@@ -328,37 +329,33 @@ export const updateClient = async (req, res) => {
         // 🟢 إذا كان الأدمن هو من قام بالتعديل، يتم تنفيذ شرط `if (assignedTo)`
         if (currentUser.role === 'admin' && assignedTo) {
             // console.log(callBackDate)
-
             const newSeller = await UserModel.findById(assignedTo); // جلب بيانات البائع الجديد
             // console.log(newSeller)
             if (!newSeller) {
                 return res.status(404).json({ message: 'Sales user not found' });
             }
-
-
-
-            // ✅ إذا تم تحديد callBackDate، جدولة الإيميل للبائع
-            if (status === "Follow Up" && callBackDate) {
-                // console.log(callBackDate)
-                // const seller = await UserModel.findById(currentUser.id);
-                if (newSeller && newSeller.realemail) {
-                    scheduleEmail(newSeller.realemail, updatedClient, callBackDate, "Client Follow-Up Reminder");
-                }
-            }
-            // ✅ إذا تم تحديد attendDate جدولة الإيميل للبائع
-            if (status === "Attend Visit" && attendDate) {
-                // const seller = await UserModel.findById(currentUser.id);
-                if (newSeller && newSeller.realemail) {
-                    scheduleEmail(newSeller.realemail, updatedClient, attendDate, "Client Attend Visit Reminder");
-                }
-            }
-            // ✅ إذا تم تحديد meetingDate، جدولة إيميل للبائع
-            if (meetingDate) {
-                // const seller = await UserModel.findById(currentUser.id);
-                if (newSeller && newSeller.realemail) {
-                    scheduleEmail(newSeller.realemail, updatedClient, meetingDate, "Client Meeting Reminder");
-                }
-            }
+            // // ✅ إذا تم تحديد callBackDate، جدولة الإيميل للبائع
+            // if (callBackDate) {
+            //     // console.log(callBackDate)
+            //     // const seller = await UserModel.findById(currentUser.id);
+            //     if (newSeller && newSeller.realemail) {
+            //         scheduleEmail(newSeller.realemail, updatedClient, callBackDate, "Client Follow-Up Reminder");
+            //     }
+            // }
+            // // ✅ إذا تم تحديد attendDate جدولة الإيميل للبائع
+            // if (attendDate) {
+            //     // const seller = await UserModel.findById(currentUser.id);
+            //     if (newSeller && newSeller.realemail) {
+            //         scheduleEmail(newSeller.realemail, updatedClient, attendDate, "Client Attend Visit Reminder");
+            //     }
+            // }
+            // // ✅ إذا تم تحديد meetingDate، جدولة إيميل للبائع
+            // if (meetingDate) {
+            //     // const seller = await UserModel.findById(currentUser.id);
+            //     if (newSeller && newSeller.realemail) {
+            //         scheduleEmail(newSeller.realemail, updatedClient, meetingDate, "Client Meeting Reminder");
+            //     }
+            // }
 
 
 
