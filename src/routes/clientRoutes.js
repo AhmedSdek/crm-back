@@ -21,7 +21,7 @@ router.put('/:id', authenticate, updateClient);
 // حذف عميل
 router.delete('/:id', deleteClient);
 
-router.get('/:sellerId', async (req, res) => {
+router.get('/seller/:sellerId', async (req, res) => {
     try {
         const { sellerId } = req.params;
         const clients = await ClientModel.find({ assignedTo: sellerId });
