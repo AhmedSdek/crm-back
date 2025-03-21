@@ -13,7 +13,7 @@ router.post('/', createClient);
 router.get('/', getAllClients);
 
 // عرض عميل معين
-router.get('/one/:id', getClientById);
+router.get('/:id', getClientById);
 
 // تحديث بيانات عميل
 router.put('/:id', authenticate, updateClient);
