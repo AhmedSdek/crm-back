@@ -20,30 +20,6 @@ router.put('/:id', authenticate, updateClient);
 
 // حذف عميل
 router.delete('/:id', deleteClient);
-// router.put('/:clientId/assign', checkRole(['admin']), async (req, res) => {
-//     const { clientId } = req.params;
-//     const { salesId } = req.body; // ID الموظف
-
-//     try {
-//         const client = await ClientModel.findById(clientId);
-//         if (!client) return res.status(404).json({ message: 'Client not found' });
-
-//         client.assignedTo = salesId;
-//         await client.save();
-
-//         // تحديث قائمة العملاء لدى الموظف
-//         const salesUser = await UserModel.findById(salesId);
-//         if (!salesUser) return res.status(404).json({ message: 'Sales user not found' });
-
-//         salesUser.assignedClients.push(clientId);
-//         await salesUser.save();
-
-//         res.json({ message: 'Client assigned successfully' });
-//     } catch (error) {
-//         res.status(500).json({ message: 'Error assigning client', error: error.message });
-//     }
-// });
-
 
 router.get('/:sellerId', async (req, res) => {
     try {

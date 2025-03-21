@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import { UserModel } from '../models/User.js';
 import jwt from 'jsonwebtoken'
 import 'dotenv/config';
+import loginLimiter from '../Middleware/limit.js';
 const router = express.Router();
 
 router.post('/signup', async (req, res) => {
@@ -33,7 +34,7 @@ router.post('/signup', async (req, res) => {
 });
 
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
     // console.log(password)
 
