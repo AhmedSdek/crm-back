@@ -264,9 +264,9 @@ export const createClient = async (req, res, next) => {
 export const updateClient = async (req, res) => {
     try {
         const { status, callBackDate, assignedTo, meetingDate, attendDate } = req.body;
-        console.log(req.body)
+        // console.log(req.body)
         const currentUser = req.user;
-        console.log(currentUser)
+        // console.log(currentUser)
 
         // 🟢 إعداد بيانات التحديث بناءً على دور المستخدم
         let updateData = { ...req.body };
@@ -446,12 +446,12 @@ const scheduleEmail = (realemail, client, date, subject) => {
     const scheduledDate = new Date(date);
     const cronTime = `${scheduledDate.getMinutes()} ${scheduledDate.getHours()} ${scheduledDate.getDate()} ${scheduledDate.getMonth() + 1} *`;
 
-    console.log(`⏳ تم جدولة إيميل للبائع (${realemail}) في ${date} - الموضوع: ${subject}`);
+    // console.log(`⏳ تم جدولة إيميل للبائع (${realemail}) في ${date} - الموضوع: ${subject}`);
 
     cron.schedule(cronTime, async () => {
         const message = `Reminder: You have a scheduled event for client ${client.firstName} ${client.lastName} : ${date}. Please check your CRM system.`;
         await sendEmail(realemail, subject, message);
-        console.log(`✅ تم إرسال الإيميل للبائع (${realemail}) بخصوص: ${subject}.`);
+        // console.log(`✅ تم إرسال الإيميل للبائع (${realemail}) بخصوص: ${subject}.`);
     });
 };
 
@@ -471,7 +471,7 @@ export const scheduleInactivityCheck = async (io) => {
 
                     // ✅ إذا كان lastUpdated متأخراً عن modifiedTime ولو بثانية واحدة، يتم إلغاء الجدولة تمامًا
                     if (lastUpdated && lastUpdated.diff(modifiedTime, 'second') > 0) {
-                        console.log(`✅ Client ${client._id} was updated after modifiedTime. Skipping all actions.`);
+                        // console.log(`✅ Client ${client._id} was updated after modifiedTime. Skipping all actions.`);
                         continue;
                     }
 
@@ -487,7 +487,7 @@ export const scheduleInactivityCheck = async (io) => {
                             `⚠️ Warning: You haven't updated client ${client.firstName} ${client.lastName}.
                             If no action is taken in the next 24 hours, the client will be reassigned.`
                         );
-                        console.log(`📧 Sent warning email to seller (${assignedSeller.realemail}) for client ${client._id}`);
+                        // console.log(`📧 Sent warning email to seller (${assignedSeller.realemail}) for client ${client._id}`);
 
                         // ✅ تحديث العميل في قاعدة البيانات ليتم تسجيل أنه تم إرسال الإيميل
                         await ClientModel.findByIdAndUpdate(client._id, { warningEmailSent: true });

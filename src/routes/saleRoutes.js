@@ -70,7 +70,8 @@ const transporter = nodemailer.createTransport({
 //     }
 // });
 router.post('/create-sales', async (req, res) => {
-    const { name, email, phone } = req.body;
+    const { name, email, phone, role } = req.body;
+    console.log(req.body)
     try {
         // التحقق مما إذا كان الإيميل أو رقم الهاتف مسجلين مسبقًا
         const existingUser = await UserModel.findOne({ $or: [{ email }, { phone }] });
@@ -95,7 +96,7 @@ router.post('/create-sales', async (req, res) => {
             phone,
             password: hashedPassword,
             realemail: email,
-            role: 'sales',
+            role: role,
         });
         await newUser.save();
         // إعداد رسالة الإيميل

@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     realemail: { type: String, unique: true },
     phone: { type: String, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'sales'], required: true, default: 'sales' },
+    role: { type: String, required: true, default: 'sales' },
     assignedClients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Client' }] // العملاء المنسوبين للموظف
 });
 
