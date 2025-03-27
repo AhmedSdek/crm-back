@@ -509,6 +509,47 @@ export const scheduleInactivityCheck = async (io) => {
         }
     });
 };
+// قديم
+// const transferClientToNextSeller = async (client, io) => {
+//     const latestClient = await ClientModel.findById(client._id);
+//     if (!latestClient) return;
+
+//     const currentSellerId = latestClient.assignedTo;
+//     const allSellers = await UserModel.find({ role: 'sales' });
+//     const currentIndex = allSellers.findIndex(seller => seller._id.toString() === currentSellerId.toString());
+
+//     if (currentIndex + 1 < allSellers.length) {
+//         const nextSeller = allSellers[currentIndex + 1];
+//         const currentSeller = await UserModel.findById(currentSellerId);
+
+//         if (currentSeller) {
+//             currentSeller.assignedClients = currentSeller.assignedClients.filter(id => id.toString() !== latestClient._id.toString());
+//             await currentSeller.save();
+//             console.log(`❌ Removed client (${latestClient._id}) from seller (${currentSeller.realemail})`);
+//         }
+
+//         nextSeller.assignedClients.push(latestClient._id);
+//         await nextSeller.save();
+
+//         latestClient.assignedTo = nextSeller._id.toString();
+//         latestClient.modifiedTime = new Date();
+//         await latestClient.save();
+
+//         console.log(`✅ Transferred client (${latestClient._id}) to new seller (${nextSeller.realemail})`);
+
+//         const notification = new NotificationModel({
+//             userId: nextSeller._id.toString(),
+//             message: `New client assigned to you: ${latestClient._id}`,
+//             clientId: latestClient._id
+//         });
+//         await notification.save();
+
+//         io.to(nextSeller._id.toString()).emit('newClientNotification', notification);
+//     } else {
+//         console.log(`❌ No next seller available for transfer.`);
+//     }
+// };
+
 
 const transferClientToNextSeller = async (client, io) => {
     const latestClient = await ClientModel.findById(client._id);
@@ -516,36 +557,39 @@ const transferClientToNextSeller = async (client, io) => {
 
     const currentSellerId = latestClient.assignedTo;
     const allSellers = await UserModel.find({ role: 'sales' });
-    const currentIndex = allSellers.findIndex(seller => seller._id.toString() === currentSellerId.toString());
 
-    if (currentIndex + 1 < allSellers.length) {
-        const nextSeller = allSellers[currentIndex + 1];
-        const currentSeller = await UserModel.findById(currentSellerId);
-
-        if (currentSeller) {
-            currentSeller.assignedClients = currentSeller.assignedClients.filter(id => id.toString() !== latestClient._id.toString());
-            await currentSeller.save();
-            console.log(`❌ Removed client (${latestClient._id}) from seller (${currentSeller.realemail})`);
-        }
-
-        nextSeller.assignedClients.push(latestClient._id);
-        await nextSeller.save();
-
-        latestClient.assignedTo = nextSeller._id.toString();
-        latestClient.modifiedTime = new Date();
-        await latestClient.save();
-
-        console.log(`✅ Transferred client (${latestClient._id}) to new seller (${nextSeller.realemail})`);
-
-        const notification = new NotificationModel({
-            userId: nextSeller._id.toString(),
-            message: `New client assigned to you: ${latestClient._id}`,
-            clientId: latestClient._id
-        });
-        await notification.save();
-
-        io.to(nextSeller._id.toString()).emit('newClientNotification', notification);
-    } else {
-        console.log(`❌ No next seller available for transfer.`);
+    if (allSellers.length === 0) {
+        console.log(`❌ No sellers available.`);
+        return;
     }
+
+    let currentIndex = allSellers.findIndex(seller => seller._id.toString() === currentSellerId.toString());
+    let nextIndex = (currentIndex + 1) % allSellers.length; // إعادة التوزيع عند آخر عنصر
+
+    const nextSeller = allSellers[nextIndex];
+    const currentSeller = await UserModel.findById(currentSellerId);
+
+    if (currentSeller) {
+        currentSeller.assignedClients = currentSeller.assignedClients.filter(id => id.toString() !== latestClient._id.toString());
+        await currentSeller.save();
+        console.log(`❌ Removed client (${latestClient._id}) from seller (${currentSeller.realemail})`);
+    }
+
+    nextSeller.assignedClients.push(latestClient._id);
+    await nextSeller.save();
+
+    latestClient.assignedTo = nextSeller._id.toString();
+    latestClient.modifiedTime = new Date();
+    await latestClient.save();
+
+    console.log(`✅ Transferred client (${latestClient._id}) to new seller (${nextSeller.realemail})`);
+
+    const notification = new NotificationModel({
+        userId: nextSeller._id.toString(),
+        message: `New client assigned to you: ${latestClient._id}`,
+        clientId: latestClient._id
+    });
+    await notification.save();
+
+    io.to(nextSeller._id.toString()).emit('newClientNotification', notification);
 };
