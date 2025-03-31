@@ -5,7 +5,7 @@ const ClientSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     email: { type: String },
     phone: { type: String, required: true, unique: true },
-    whatsapp: { type: String, required: true },
+    whatsapp: { type: String },
     developer: { type: String },
     project: { type: String },
     notes: { type: String },
@@ -13,7 +13,7 @@ const ClientSchema = new mongoose.Schema({
     leadSource: { type: String },
     description: { type: String },
     meetingDate: { type: Date },
-    isBuyer: { type: Boolean, required: true },
+    isBuyer: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     modifiedTime: { type: Date, default: Date.now },
     lastUpdated: { type: Date, default: Date.now }, // ✅ وقت آخر تعديل

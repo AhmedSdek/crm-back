@@ -5,6 +5,7 @@ import cron from "node-cron";
 import { sendEmail } from '../utils/mailer.js';
 import dayjs from 'dayjs';
 
+
 // إنشاء عميل جديد
 export const createClient = async (req, res, next) => {
     try {
@@ -40,6 +41,35 @@ export const createClient = async (req, res, next) => {
         res.status(500).json({ message: error.message });
     }
 };
+//exel 
+export const bulkUploadClients = async (req, res) => {
+    try {
+        const { clients } = req.body;
+
+        if (!clients || clients.length === 0) {
+            return res.status(400).json({ message: "No clients found in the file!" });
+        }
+
+        // التحقق من صحة البيانات قبل الإدخال
+        const validClients = clients.filter(client =>
+            client.firstName && client.lastName && client.email &&
+            client.phone && client.isBuyer !== undefined
+        );
+
+        if (validClients.length === 0) {
+            return res.status(400).json({ message: "Invalid data format in Excel!" });
+        }
+
+        // إدخال العملاء في قاعدة البيانات
+        const newClients = await ClientModel.insertMany(validClients);
+        res.status(201).json({ message: "Clients uploaded successfully", data: newClients });
+
+    } catch (error) {
+        console.error("Error uploading clients:", error);
+        res.status(500).json({ message: `${error.errorResponse.message}` });
+    }
+};
+
 // تحديث بيانات عميل
 // export const updateClient = async (req, res) => {
 //     try {

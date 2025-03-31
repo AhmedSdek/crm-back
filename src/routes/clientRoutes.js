@@ -1,5 +1,5 @@
 import express from 'express';
-import { createClient, deleteClient, getAllClients, getClientById, updateClient } from '../controllers/clientController.js';
+import { bulkUploadClients, createClient, deleteClient, getAllClients, getClientById, updateClient } from '../controllers/clientController.js';
 import { ClientModel } from '../models/Client.js';
 import { authenticate, checkRole, verifySeller, verifyToken } from '../Middleware/Middleware.js';
 import { UserModel } from '../models/User.js';
@@ -9,6 +9,7 @@ const router = express.Router();
 // إنشاء عميل جديد
 router.post('/', createClient);
 
+router.post('/bulk', bulkUploadClients); // نقطة النهاية لتحميل الـ Excel
 // عرض جميع العملاء
 router.get('/', getAllClients);
 
