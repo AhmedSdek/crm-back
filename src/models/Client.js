@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
 const ClientSchema = new mongoose.Schema({
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    name: { type: String, required: true },
+    // lastName: { type: String, required: true },
     email: { type: String },
     phone: { type: String, required: true, unique: true },
     whatsapp: { type: String },
@@ -13,7 +13,7 @@ const ClientSchema = new mongoose.Schema({
     leadSource: { type: String },
     description: { type: String },
     meetingDate: { type: Date },
-    isBuyer: { type: String, required: true },
+    isBuyer: { type: String },
     createdAt: { type: Date, default: Date.now },
     modifiedTime: { type: Date, default: Date.now },
     lastUpdated: { type: Date, default: Date.now }, // ✅ وقت آخر تعديل

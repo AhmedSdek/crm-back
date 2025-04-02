@@ -41,7 +41,34 @@ export const createClient = async (req, res, next) => {
         res.status(500).json({ message: error.message });
     }
 };
-//exel 
+//exel
+// export const bulkUploadClients = async (req, res) => {
+//     try {
+//         const { clients } = req.body;
+
+//         if (!clients || clients.length === 0) {
+//             return res.status(400).json({ message: "No clients found in the file!" });
+//         }
+
+//         // التحقق من صحة البيانات قبل الإدخال
+//         const validClients = clients.filter(client =>
+//             client.name &&
+//             client.phone !== undefined
+//         );
+
+//         if (validClients.length === 0) {
+//             return res.status(400).json({ message: "Invalid data format in Excel!" });
+//         }
+
+//         // إدخال العملاء في قاعدة البيانات
+//         const newClients = await ClientModel.insertMany(validClients);
+//         res.status(201).json({ message: "Clients uploaded successfully", data: newClients });
+
+//     } catch (error) {
+//         console.error("Error uploading clients:", error);
+//         res.status(500).json({ message: `${error.errorResponse.message}` });
+//     }
+// };
 export const bulkUploadClients = async (req, res) => {
     try {
         const { clients } = req.body;
@@ -52,21 +79,31 @@ export const bulkUploadClients = async (req, res) => {
 
         // التحقق من صحة البيانات قبل الإدخال
         const validClients = clients.filter(client =>
-            client.firstName && client.lastName && client.email &&
-            client.phone && client.isBuyer !== undefined
+            client.name && client.phone !== undefined
         );
 
         if (validClients.length === 0) {
             return res.status(400).json({ message: "Invalid data format in Excel!" });
         }
 
-        // إدخال العملاء في قاعدة البيانات
-        const newClients = await ClientModel.insertMany(validClients);
+        // جلب جميع أرقام الهواتف المسجلة بالفعل
+        const existingClients = await ClientModel.find({}, "phone");
+        const existingPhones = new Set(existingClients.map(client => client.phone));
+
+        // تصفية العملاء لإزالة الأرقام المكررة
+        const uniqueClients = validClients.filter(client => !existingPhones.has(client.phone));
+
+        if (uniqueClients.length === 0) {
+            return res.status(400).json({ message: "All clients have duplicate phone numbers!" });
+        }
+
+        // إدخال العملاء غير المكررين في قاعدة البيانات
+        const newClients = await ClientModel.insertMany(uniqueClients);
         res.status(201).json({ message: "Clients uploaded successfully", data: newClients });
 
     } catch (error) {
         console.error("Error uploading clients:", error);
-        res.status(500).json({ message: `${error.errorResponse.message}` });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -327,7 +364,7 @@ export const updateClient = async (req, res) => {
         if (currentUser.role === 'sales') {
             const adminNotification = new NotificationModel({
                 userId: admin._id,
-                message: `Client ${updatedClient.firstName} ${updatedClient.lastName} has been updated by ${currentUser.name}.`,
+                message: `Client ${updatedClient.name}  has been updated by ${currentUser.name}.`,
                 clientId: updatedClient._id
             });
             await adminNotification.save();
@@ -479,7 +516,7 @@ const scheduleEmail = (realemail, client, date, subject) => {
     // console.log(`⏳ تم جدولة إيميل للبائع (${realemail}) في ${date} - الموضوع: ${subject}`);
 
     cron.schedule(cronTime, async () => {
-        const message = `Reminder: You have a scheduled event for client ${client.firstName} ${client.lastName} : ${date}. Please check your CRM system.`;
+        const message = `Reminder: You have a scheduled event for client ${client.name}  : ${date}. Please check your CRM system.`;
         await sendEmail(realemail, subject, message);
         // console.log(`✅ تم إرسال الإيميل للبائع (${realemail}) بخصوص: ${subject}.`);
     });
@@ -514,7 +551,7 @@ export const scheduleInactivityCheck = async (io) => {
                         await sendEmail(
                             assignedSeller.realemail,
                             'Client Inactivity Warning',
-                            `⚠️ Warning: You haven't updated client ${client.firstName} ${client.lastName}.
+                            `⚠️ Warning: You haven't updated client ${client.name} ${client.lastName}.
                             If no action is taken in the next 24 hours, the client will be reassigned.`
                         );
                         // console.log(`📧 Sent warning email to seller (${assignedSeller.realemail}) for client ${client._id}`);

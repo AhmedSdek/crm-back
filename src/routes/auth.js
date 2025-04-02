@@ -7,10 +7,10 @@ import loginLimiter from '../Middleware/limit.js';
 const router = express.Router();
 
 router.post('/signup', async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, phone } = req.body;
 
     // التحقق من البيانات
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phone) {
         return res.status(400).json({ message: 'Please fill in all fields' });
     }
 
@@ -22,6 +22,7 @@ router.post('/signup', async (req, res) => {
         const newUser = new UserModel({
             name,
             email,
+            phone,
             realemail: email,
             password: hashedPassword,
         });
