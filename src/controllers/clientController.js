@@ -69,43 +69,57 @@ export const createClient = async (req, res, next) => {
 //         res.status(500).json({ message: `${error.errorResponse.message}` });
 //     }
 // };
+
 export const bulkUploadClients = async (req, res) => {
     try {
         const { clients } = req.body;
+        console.log(clients);
 
         if (!clients || clients.length === 0) {
-            return res.status(400).json({ message: "No clients found in the file!" });
+            return res.status(400).json({ message: "لا توجد عملاء في الملف!" });
         }
 
         // التحقق من صحة البيانات قبل الإدخال
         const validClients = clients.filter(client =>
-            client.name && client.phone !== undefined
+            client.name &&
+            client.phone !== undefined
         );
 
         if (validClients.length === 0) {
-            return res.status(400).json({ message: "Invalid data format in Excel!" });
+            return res.status(400).json({ message: "تنسيق البيانات غير صالح في الملف!" });
         }
 
-        // جلب جميع أرقام الهواتف المسجلة بالفعل
-        const existingClients = await ClientModel.find({}, "phone");
-        const existingPhones = new Set(existingClients.map(client => client.phone));
+        // تحويل أرقام الهواتف إلى سترينج
+        validClients.forEach(client => {
+            client.phone = client.phone.toString();
+        });
 
-        // تصفية العملاء لإزالة الأرقام المكررة
-        const uniqueClients = validClients.filter(client => !existingPhones.has(client.phone));
+        // التحقق إذا كان الرقم موجود بالفعل في قاعدة البيانات
+        const existingClients = await ClientModel.find({ phone: { $in: validClients.map(client => client.phone) } });
 
-        if (uniqueClients.length === 0) {
-            return res.status(400).json({ message: "All clients have duplicate phone numbers!" });
+        // تصفية العملاء الذين لديهم أرقام مكررة
+        const newClients = validClients.filter(client =>
+            !existingClients.some(existingClient => existingClient.phone === client.phone)
+        );
+
+        // إذا كان هناك عملاء جدد سيتم إدخالهم
+        if (newClients.length > 0) {
+            const addedClients = await ClientModel.insertMany(newClients);
+            res.status(201).json({ message: "تم رفع العملاء الجدد بنجاح", data: addedClients });
+        } else {
+            res.status(400).json({ message: "جميع الأرقام موجودة بالفعل في قاعدة البيانات!" });
         }
-
-        // إدخال العملاء غير المكررين في قاعدة البيانات
-        const newClients = await ClientModel.insertMany(uniqueClients);
-        res.status(201).json({ message: "Clients uploaded successfully", data: newClients });
 
     } catch (error) {
-        console.error("Error uploading clients:", error);
-        res.status(500).json({ message: error.message });
+        console.error("خطأ في رفع العملاء:", error);
+        res.status(500).json({ message: `حدث خطأ: ${error.message}` });
     }
 };
+
+
+
+
+
 
 // تحديث بيانات عميل
 // export const updateClient = async (req, res) => {
